@@ -32,22 +32,22 @@ pipeline {
 
         stage('Docker Build & Tag') {
             steps {
-                withDockerRegistry(credentialsId: 'docker-login', url: 'https://index.docker.io/v1/') {
-                    sh "docker build -t ishurusia/react:${BUILD_NUMBER} ."
+                withDockerRegistry(credentialsId: 'nexus', url: 'http://localhost:8082') {
+                    sh "docker build -t localhost:8082/react:${BUILD_NUMBER} ."
                 }
             }
         }
 
         stage('Trivy Scan') {
             steps {
-                sh "trivy image ishurusia/react:${BUILD_NUMBER}"
+                sh "trivy image localhost:8082/react:${BUILD_NUMBER}"
             }
         }
 
         stage('Docker Push') {
             steps {
-                withDockerRegistry(credentialsId: 'docker-login', url: 'https://index.docker.io/v1/') {
-                    sh "docker push ishurusia/react:${BUILD_NUMBER}"
+                withDockerRegistry(credentialsId: 'nexus', url: 'http://localhost:8082') {
+                    sh "docker push localhost:8082/react:${BUILD_NUMBER}"
                 }
             }
         }
@@ -57,7 +57,7 @@ pipeline {
                 script {
                     sh """
                     # Fetch the list of images tagged with ishurusia/react
-                    docker images ishurusia/react --format '{{.Tag}}' | sort -nr | tail -n +4 | xargs -I {} docker rmi ishurusia/react:{}
+                    docker images localhost:8082/react --format '{{.Tag}}' | sort -nr | tail -n +4 | xargs -I {} docker rmi ishurusia/react:{}
                     """
                     echo "Older images deleted, keeping only the latest 3."
                 }
