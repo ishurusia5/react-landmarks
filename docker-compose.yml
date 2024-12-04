@@ -1,0 +1,7 @@
+version: "3.8"
+services: 
+ mongodb:
+  container_name: react-app
+  image: ishurusia/react:${BUILD_NUMBER}
+  ports:
+   - "3000:3000"
